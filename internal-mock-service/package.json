@@ -1,0 +1,14 @@
+{
+  "name": "internal-mock-service",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Small standalone internal-platform service reachable only on the internal Docker network. Serves synthetic status/config data for other internal services to consume.",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

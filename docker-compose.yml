@@ -1,0 +1,78 @@
+# Brings up db, api, frontend, and internal-mock-service, wired together.
+#
+# Usage: copy .env.example to .env, then `docker compose up`.
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  internal-mock-service:
+    build:
+      context: ./internal-mock-service
+    # No host port mapping - reachable only from other containers on the
+    # compose network.
+    expose:
+      - "9090"
+
+  api:
+    build:
+      context: ./backend/Saksbehandling.Api
+    # Pinned to amd64: the case-summary PDF export depends on an exact
+    # upstream wkhtmltopdf build (0.12.5) that's only published for amd64.
+    # Runs under emulation on Apple Silicon/other arm64 hosts - slower to
+    # build, but keeps the pinned binary identical across everyone's machine
+    # instead of swapping in an arm64-compatible build that might not
+    # behave the same way.
+    platform: linux/amd64
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__Default: >-
+        Host=db;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      # Overrides appsettings.Development.json's local-dev path - both the
+      # container and local `dotnet run` use ASPNETCORE_ENVIRONMENT=Development,
+      # so only an explicit env var here reliably picks the mounted volume.
+      Storage__RootPath: /app/storage
+      InternalApi__ApiKey: TRAINING-ONLY-SECRET-OUTBOUND-API-KEY-0002
+      DataProtection__KeysPath: /app/dataprotection-keys
+    ports:
+      - "${API_PORT:-5080}:8080"
+    volumes:
+      - storage-data:/app/storage
+      - dataprotection-keys:/app/dataprotection-keys
+    depends_on:
+      db:
+        condition: service_healthy
+      internal-mock-service:
+        condition: service_started
+
+  frontend:
+    build:
+      context: ./frontend
+    environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:5080}
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    volumes:
+      - ./frontend:/app
+      - frontend-node-modules:/app/node_modules
+    depends_on:
+      - api
+
+volumes:
+  db-data:
+  storage-data:
+  dataprotection-keys:
+  frontend-node-modules:
