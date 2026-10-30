@@ -48,8 +48,10 @@ oppstart — ingen egen migreringskommando er nødvendig for vanlig lokal kjøri
 
 ```
 docker compose down -v
-docker compose up
+docker compose up --build
 ```
+
+Her vil Docker spørre om tillatelse til å dele mappen frontend med containeren. Dette er gjort slik at dere kan hotpatche litt om behovet dukker opp, og frontend reloader automatisk. Trykk Ja/Yes på dette spørsmålet.
 
 `-v` fjerner også databasen og opplastede filer, slik at neste oppstart starter helt
 på nytt.
