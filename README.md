@@ -1,5 +1,9 @@
 # Saksbehandlingssystem
 
+© Bouvet Norge AS. Alt innhold i dette repositoriet er beskyttet av opphavsrett.
+Kopiering, distribusjon, publisering eller annen gjenbruk, helt eller delvis, er
+ikke tillatt uten skriftlig forhåndsgodkjenning fra Bouvet Norge AS.
+
 Internt saksbehandlingssystem for mottak, registrering, tildeling og oppfølging av
 saker. Brukes av saksbehandlere, team­ledere og administratorer på tvers av flere
 avdelinger (Kundeservice, Økonomi, Juridisk, IT-drift, HR).
