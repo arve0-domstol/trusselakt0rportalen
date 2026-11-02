@@ -10,7 +10,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     volumes:
       - db-data:/var/lib/postgresql/data
     healthcheck:
@@ -48,7 +48,7 @@ services:
       InternalApi__ApiKey: TRAINING-ONLY-SECRET-OUTBOUND-API-KEY-0002
       DataProtection__KeysPath: /app/dataprotection-keys
     ports:
-      - "${API_PORT:-5080}:8080"
+      - "127.0.0.1:${API_PORT:-5080}:8080"
     volumes:
       - storage-data:/app/storage
       - dataprotection-keys:/app/dataprotection-keys
@@ -64,7 +64,7 @@ services:
     environment:
       VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:5080}
     ports:
-      - "${FRONTEND_PORT:-5173}:5173"
+      - "127.0.0.1:${FRONTEND_PORT:-5173}:5173"
     volumes:
       - ./frontend:/app
       - frontend-node-modules:/app/node_modules
